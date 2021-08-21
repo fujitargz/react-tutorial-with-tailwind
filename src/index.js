@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useReducer, useState } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
@@ -17,13 +17,13 @@ const Square = (props) => {
 
 const Board = () => {
   const [squares, setSquares] = useState(Array(9).fill(null));
-
-  const status = 'Next player: X';
+  const [xIsNext, toggleXIsNext] = useReducer(xIsNext => !xIsNext, true);
 
   const handleClick = (i) => {
     const newSquares = squares.slice();
-    newSquares[i] = 'X';
+    newSquares[i] = xIsNext ? 'X' : 'O';
     setSquares(newSquares);
+    toggleXIsNext();
   };
 
   const renderSquare = (i) => {
@@ -37,7 +37,9 @@ const Board = () => {
 
   return (
     <div>
-      <div className='mb-2.5'>{status}</div>
+      <div className='mb-2.5'>
+        {`Next player: ${xIsNext ? 'X' : 'O'}`}
+      </div>
       <div className='board-row'>
         {renderSquare(0)}
         {renderSquare(1)}
