@@ -2,10 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-const Square = () => {
+const Square = (props) => {
   return (
     <button className='bg-white border border-gray-400 float-left font-bold leading-9 h-9 w-9 -mt-px -ml-px p-0 text-center'>
-      {/* TODO */}
+      {props.value}
     </button>
   );
 };
@@ -14,7 +14,7 @@ const Board = () => {
   const status = 'Next player: X';
 
   const renderSquare = (i) => {
-    return <Square />;
+    return <Square value={i} />;
   }
 
   return (
