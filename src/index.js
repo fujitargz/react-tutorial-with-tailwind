@@ -15,8 +15,39 @@ const Square = (props) => {
   );
 };
 
-const Board = () => {
-  const [squares, setSquares] = useState(Array(9).fill(null));
+const Board = (props) => {
+  const renderSquare = (i) => {
+    return (
+      <Square
+        value={props.squares[i]}
+        onClick={() => props.onClick(i)}
+      />
+    );
+  };
+
+  return (
+    <div>
+      <div className='board-row'>
+        {renderSquare(0)}
+        {renderSquare(1)}
+        {renderSquare(2)}
+      </div>
+      <div className='board-row'>
+        {renderSquare(3)}
+        {renderSquare(4)}
+        {renderSquare(5)}
+      </div>
+      <div className='board-row'>
+        {renderSquare(6)}
+        {renderSquare(7)}
+        {renderSquare(8)}
+      </div>
+    </div>
+  );
+};
+
+const Game = () => {
+  const [history, setHistory] = useState([{squares: Array(9).fill(null)}]);
   const [xIsNext, toggleXIsNext] = useReducer(xIsNext => !xIsNext, true);
 
   const calculateWinner = (squares) => {
@@ -39,27 +70,20 @@ const Board = () => {
     }
     return null;
   };
-
+  
   const handleClick = (i) => {
-    const newSquares = squares.slice();
-    if(calculateWinner(newSquares) || newSquares[i]){
+    const current = history[history.length - 1];
+    const squares = current.squares.slice();
+    if(calculateWinner(squares) || squares[i]){
       return;
     }
-    newSquares[i] = xIsNext ? 'X' : 'O';
-    setSquares(newSquares);
+    squares[i] = xIsNext ? 'X' : 'O';
+    setHistory(history.concat([{squares: squares}]));
     toggleXIsNext();
   };
 
-  const renderSquare = (i) => {
-    return (
-      <Square
-        value={squares[i]}
-        onClick={() => handleClick(i)}
-      />
-    );
-  };
-
-  const winner = calculateWinner(squares);
+  const current = history[history.length - 1];
+  const winner = calculateWinner(current.squares);
   let status;
   if(winner){
     status = 'Winner: ' + winner;
@@ -68,35 +92,15 @@ const Board = () => {
   }
 
   return (
-    <div>
-      <div className='mb-2.5'>{status}</div>
-      <div className='board-row'>
-        {renderSquare(0)}
-        {renderSquare(1)}
-        {renderSquare(2)}
-      </div>
-      <div className='board-row'>
-        {renderSquare(3)}
-        {renderSquare(4)}
-        {renderSquare(5)}
-      </div>
-      <div className='board-row'>
-        {renderSquare(6)}
-        {renderSquare(7)}
-        {renderSquare(8)}
-      </div>
-    </div>
-  );
-};
-
-const Game = () => {
-  return (
     <div className='flex flex-row m-5'>
       <div className='game-board'>
-        <Board />
+        <Board
+          squares={current.squares}
+          onClick={(i) => handleClick(i)}
+        />
       </div>
       <div className='ml-5'>
-        <div>{/* status */}</div>
+        <div>{status}</div>
         <ol className='pl-7'>{/* TODO */}</ol>
       </div>
     </div>
