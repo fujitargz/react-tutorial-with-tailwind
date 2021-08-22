@@ -48,7 +48,8 @@ const Board = (props) => {
 
 const Game = () => {
   const [history, setHistory] = useState([{squares: Array(9).fill(null)}]);
-  const [xIsNext, toggleXIsNext] = useReducer(xIsNext => !xIsNext, true);
+  const [stepNumber, setStepNumber] = useState(0);
+  const [xIsNext, setXIsNext] = useState(true);
 
   const calculateWinner = (squares) => {
     const lines = [
@@ -72,17 +73,24 @@ const Game = () => {
   };
   
   const handleClick = (i) => {
-    const current = history[history.length - 1];
+    const newHistory = history.slice(0, stepNumber + 1);
+    const current = newHistory[newHistory.length - 1];
     const squares = current.squares.slice();
     if(calculateWinner(squares) || squares[i]){
       return;
     }
     squares[i] = xIsNext ? 'X' : 'O';
-    setHistory(history.concat([{squares: squares}]));
-    toggleXIsNext();
+    setHistory(newHistory.concat([{squares: squares}]));
+    setStepNumber(newHistory.length)
+    setXIsNext(xIsNext => !xIsNext);
   };
 
-  const current = history[history.length - 1];
+  const jumpTo = (step) => {
+    setStepNumber(step);
+    setXIsNext((step % 2) === 0);
+  };
+
+  const current = history[stepNumber];
   const winner = calculateWinner(current.squares);
 
   const moves = history.map((step, move) => {
@@ -90,8 +98,13 @@ const Game = () => {
       'Go to move #' + move :
       'Go to game start';
     return (
-      <li>
-        <button onClick={() => jumpTo(move)}>{desc}</button>
+      <li key={move}>
+        <button
+          className='border border-black bg-gray-200 px-2 -mt-1'
+          onClick={() => jumpTo(move)}
+        >
+          {desc}
+        </button>
       </li>
     )
   });
@@ -113,7 +126,7 @@ const Game = () => {
       </div>
       <div className='ml-5'>
         <div>{status}</div>
-        <ol className='pl-7'>{moves}</ol>
+        <ol className='pl-7 mt-4'>{moves}</ol>
       </div>
     </div>
   );
